@@ -75,6 +75,8 @@
 }
 
 .dropdown_head {
+    white-space: normal;       /* 버튼(.header_profile)의 nowrap을 물려받아 글자가 메뉴 밖으로 넘치던 문제 */
+    word-break: keep-all;      /* 한글은 단어 단위로 줄바꿈 */
     padding: 10px 12px;
     margin-bottom: 4px;
     border-bottom: 1px solid #2a2a2a;
