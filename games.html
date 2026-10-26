@@ -48,7 +48,8 @@
         /* 발매 일정 */
         .month_label { color: #e67e22; font-size: 0.95rem; font-weight: bold; margin: 20px 0 8px; }
         .release_item { display: flex; align-items: center; gap: 16px; background-color: #1c1c1c; border: 1px solid #2a2a2a; border-radius: 10px; padding: 12px 16px; margin-bottom: 8px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .release_item:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.6); }
+        .release_item { cursor: pointer; }
+        .release_item:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.6); border-color: #e67e22; }
         .release_item.released { opacity: 0.5; }
         .release_date { flex-shrink: 0; width: 48px; text-align: center; color: #fff; line-height: 1.2; }
         .release_date b { display: block; font-size: 1.3rem; }
@@ -65,6 +66,15 @@
         .news_card h3 { color: #fff; font-size: 1rem; font-weight: bold; margin-bottom: 4px; }
         .news_url { color: #e67e22; font-size: 0.78rem; margin-bottom: 8px; display: block; }
         .news_card p { color: #aaa; font-size: 0.85rem; line-height: 1.6; margin-bottom: 0; }
+
+        /* 게임 정보 창 */
+        .game_modal { background-color: #1a1a1a; border: 1px solid #333; color: #eee; }
+        .game_modal_title { color: #fff; font-size: 1.2rem; font-weight: bold; margin-bottom: 6px; padding-right: 24px; }
+        .game_modal_meta { color: #e67e22; font-size: 0.85rem; margin-bottom: 4px; }
+        .game_modal_desc { color: #ddd; font-size: 0.9rem; line-height: 1.7; margin: 12px 0 16px; }
+        .game_link { display: block; background-color: #222; border: 1px solid #333; border-radius: 8px; color: #eee; font-size: 0.9rem; padding: 10px 14px; margin-bottom: 8px; text-decoration: none; }
+        .game_link:hover { border-color: #e67e22; color: #e67e22; }
+        .game_link span { color: #888; font-size: 0.78rem; margin-left: 6px; }
 
         @media screen and (max-width: 800px) {
             .game_section { margin-left: 88px; }
@@ -136,7 +146,7 @@
 
         <!-- 발매 일정 -->
         <h2 class="game_title" data-swap="📅 Release Schedule">📅 발매 일정</h2>
-        <p class="game_sub">발매일은 각 매체 발표 기준이며 바뀔 수 있어요. 지난 게임은 흐리게 보여요.</p>
+        <p class="game_sub">발매일은 각 매체 발표 기준이며 바뀔 수 있어요. 지난 게임은 흐리게 보여요. 게임을 누르면 소개와 관련 뉴스 링크가 나와요.</p>
         <div class="filter_bar" id="filterBar"></div>
         <div id="releaseList"></div>
 
@@ -146,22 +156,55 @@
         <div class="row g-3" id="newsGrid"></div>
     </div>
 
+    <!-- 게임을 누르면 뜨는 정보 창 -->
+    <div class="modal fade" id="gameModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content game_modal p-4">
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="닫기"></button>
+                <h2 class="game_modal_title" id="gameModalTitle"></h2>
+                <div class="game_modal_meta" id="gameModalDate"></div>
+                <div id="gameModalTags"></div>
+                <p class="game_modal_desc" id="gameModalDesc"></p>
+                <div id="gameModalLinks"></div>
+            </div>
+        </div>
+    </div>
+
     <script>
         function toggleNav() {
             document.getElementById('sideNav').classList.toggle('nav_hidden');
         }
 
         // 발매 일정 (날짜 순서는 상관없음, 아래에서 정렬)
+        // maker: 개발/유통사, desc: 소개 글, search: 뉴스·영상 검색에 쓸 검색어
         const RELEASES = [
-            { title: '젤다의 전설 시간의 오카리나 (리메이크)', date: '2026-11-05', platforms: ['Switch 2'] },
-            { title: '메타포: 리판타지오', date: '2026-11-12', platforms: ['Switch 2'] },
-            { title: '피크민 4 Nintendo Switch 2 Edition', date: '2026-11-12', platforms: ['Switch 2'] },
-            { title: 'GTA 6 (Grand Theft Auto VI)', date: '2026-11-19', platforms: ['PS5', 'Xbox'] },
-            { title: 'Hela: Of Mice and Magic', date: '2026-12-01', platforms: ['PC', 'PS5', 'Xbox', 'Switch 2'] },
-            { title: '드래곤 퀘스트 몬스터즈: The Withered World', date: '2026-12-03', platforms: ['Switch 2'] },
-            { title: 'Warhammer 40,000: Dawn of War IV', date: '2026-12-03', platforms: ['PC'] },
-            { title: '몬스터 헌터 와일즈', date: '2026-12-04', platforms: ['Switch 2'] },
-            { title: '레이튼 교수와 증기의 신세계', date: '2026-12-10', platforms: ['Switch 2'] }
+            { title: '젤다의 전설 시간의 오카리나 (리메이크)', date: '2026-11-05', platforms: ['Switch 2'],
+              maker: 'Nintendo', search: '젤다의 전설 시간의 오카리나 리메이크',
+              desc: '1998년 닌텐도 64로 나온 명작 액션 어드벤처 「시간의 오카리나」를 Switch 2로 다시 만든 작품이에요.' },
+            { title: '메타포: 리판타지오', date: '2026-11-12', platforms: ['Switch 2'],
+              maker: 'ATLUS', search: '메타포 리판타지오 스위치2',
+              desc: '페르소나 시리즈 제작진이 만든 판타지 RPG. 2024년 PC·PS·Xbox로 나왔던 게임의 Switch 2 버전이에요.' },
+            { title: '피크민 4 Nintendo Switch 2 Edition', date: '2026-11-12', platforms: ['Switch 2'],
+              maker: 'Nintendo', search: '피크민 4 Switch 2 Edition',
+              desc: '작은 생물 피크민을 이끌고 탐험하는 전략 어드벤처 「피크민 4」의 Switch 2 버전이에요.' },
+            { title: 'GTA 6 (Grand Theft Auto VI)', date: '2026-11-19', platforms: ['PS5', 'Xbox'],
+              maker: 'Rockstar Games', search: 'GTA 6',
+              desc: '마이애미를 모티브로 한 바이스 시티를 배경으로 하는 오픈월드 액션 게임. 주인공은 루시아와 제이슨 두 사람이에요.' },
+            { title: 'Hela: Of Mice and Magic', date: '2026-12-01', platforms: ['PC', 'PS5', 'Xbox', 'Switch 2'],
+              maker: 'Windwalk Games', search: 'Hela Of Mice and Magic',
+              desc: '작은 쥐가 되어 마법이 깃든 세계를 탐험하는 협동 어드벤처 게임이에요.' },
+            { title: '드래곤 퀘스트 몬스터즈: The Withered World', date: '2026-12-03', platforms: ['Switch 2'],
+              maker: 'SQUARE ENIX', search: '드래곤 퀘스트 몬스터즈 신작',
+              desc: '몬스터를 모으고 배합해서 키우는 드래곤 퀘스트 몬스터즈 시리즈의 신작이에요.' },
+            { title: 'Warhammer 40,000: Dawn of War IV', date: '2026-12-03', platforms: ['PC'],
+              maker: 'KING Art Games / Deep Silver', search: 'Dawn of War IV',
+              desc: '워해머 40,000 세계관의 실시간 전략(RTS) 게임 「던 오브 워」 시리즈 신작이에요.' },
+            { title: '몬스터 헌터 와일즈', date: '2026-12-04', platforms: ['Switch 2'],
+              maker: 'CAPCOM', search: '몬스터 헌터 와일즈 스위치2',
+              desc: '거대한 몬스터를 사냥하는 헌팅 액션 게임. 2025년 PC·PS5·Xbox로 나온 작품의 Switch 2 버전이에요.' },
+            { title: '레이튼 교수와 증기의 신세계', date: '2026-12-10', platforms: ['Switch 2'],
+              maker: 'LEVEL-5', search: '레이튼 교수와 증기의 신세계',
+              desc: '레이튼 교수가 수수께끼를 풀며 사건을 해결하는 퍼즐 어드벤처 시리즈의 신작이에요.' }
         ];
 
         const NEWS_SITES = [
@@ -232,8 +275,52 @@
                     tag.textContent = p;
                     item.querySelector('.tags').appendChild(tag);
                 });
+                item.onclick = () => openGame(g);
                 list.appendChild(item);
             });
+        }
+
+        // 게임을 누르면 소개 + 관련 뉴스/영상 링크를 보여 주는 창
+        function openGame(g) {
+            const [year, month, day] = g.date.split('-');
+            const left = daysUntil(g.date);
+            const q = encodeURIComponent(g.search);
+
+            document.getElementById('gameModalTitle').textContent = g.title;
+            document.getElementById('gameModalDate').textContent =
+                `📅 ${year}년 ${Number(month)}월 ${Number(day)}일 발매 (${left > 0 ? 'D-' + left : left === 0 ? '오늘 발매' : '발매됨'}) · ${g.maker}`;
+            document.getElementById('gameModalDesc').textContent = g.desc;
+
+            const tags = document.getElementById('gameModalTags');
+            tags.innerHTML = '';
+            g.platforms.forEach(p => {
+                const tag = document.createElement('span');
+                tag.className = 'platform_tag';
+                tag.textContent = p;
+                tags.appendChild(tag);
+            });
+
+            const links = [
+                { text: '📰 관련 뉴스 보기', sub: 'Google 뉴스', url: `https://news.google.com/search?q=${q}&hl=ko&gl=KR&ceid=KR:ko` },
+                { text: '🎬 트레일러 보기', sub: 'YouTube', url: `https://www.youtube.com/results?search_query=${q}+트레일러` },
+                { text: '🔎 게임 정보 검색', sub: 'Google', url: `https://www.google.com/search?q=${q}` }
+            ];
+            const box = document.getElementById('gameModalLinks');
+            box.innerHTML = '';
+            links.forEach(l => {
+                const a = document.createElement('a');
+                a.className = 'game_link';
+                a.href = l.url;
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer';
+                a.textContent = l.text;
+                const sub = document.createElement('span');
+                sub.textContent = l.sub;
+                a.appendChild(sub);
+                box.appendChild(a);
+            });
+
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('gameModal')).show();
         }
 
         function renderNews() {
