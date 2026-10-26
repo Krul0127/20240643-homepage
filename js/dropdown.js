@@ -14,6 +14,7 @@ window.addEventListener('DOMContentLoaded', function () {
         { text: '👤 자기소개', swap: '👤 About Me', href: 'profile.html' },
         { text: '💼 프로젝트', swap: '💼 Projects', href: 'exam01.html#projects' },
         { text: '📋 게시판', swap: '📋 Board', href: 'board.html' },
+        { text: '🎮 게임 소식', swap: '🎮 Games', href: 'games.html' },
         { text: '🐙 GitHub', swap: '🐙 깃허브', href: 'https://github.com/Krul0127', newTab: true },
         'divider'
     ];

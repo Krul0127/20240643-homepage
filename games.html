@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게임 소식 - ChoSungmin</title>
+    <link rel="icon" type="image/svg+xml" href="imgs/favicon.svg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/navigation.css">
+    <link rel="stylesheet" href="css/dropdown.css">
+    <style>
+        body { background-color: #111; color: #eee; min-height: 100vh; }
+
+        .header { background-color: #1a1a1a; box-shadow: 0 0 6px #000; }
+        .header_title { color: #fff; cursor: pointer; }
+        .header_hambuger, .header_search { color: #fff; }
+        .header_text_input { background-color: #2a2a2a; border-color: #444; color: #eee; }
+        .header_text_input::placeholder { color: #888; }
+        .header_input_button { background-color: #e67e22; border-color: #e67e22; color: #fff; font-weight: bold; cursor: pointer; }
+        .header_input_button:hover { background-color: #cf6d17; }
+
+        .nav_wrapper { background-color: #1a1a1a; border-right: 1px solid #2a2a2a; }
+        .nav_wrapper li:hover { background-color: #252525; }
+        .nav_icon, .nav_menu { color: #ccc; }
+        .nav_menu:hover { color: #e67e22; }
+        .nav_menu.active { color: #e67e22; font-weight: bold; }
+        nav { transition: transform 0.3s ease; }
+        nav.nav_hidden { transform: translateX(-100%); }
+
+        .game_section { margin: 76px 32px 40px 232px; }
+        .game_section h1 { color: #fff; font-size: 1.4rem; margin-bottom: 6px; }
+        .game_sub { color: #777; font-size: 0.85rem; margin-bottom: 16px; }
+        .game_title { color: #fff; font-size: 1.1rem; margin: 40px 0 6px; }
+
+        /* 기종 필터 버튼 */
+        .filter_bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+        .filter_btn { background-color: #1c1c1c; border: 1px solid #444; border-radius: 16px; color: #ccc; font-size: 0.82rem; padding: 5px 14px; cursor: pointer; }
+        .filter_btn:hover { border-color: #e67e22; color: #e67e22; }
+        .filter_btn.active { background-color: #e67e22; border-color: #e67e22; color: #fff; font-weight: bold; }
+
+        /* 발매 일정 */
+        .month_label { color: #e67e22; font-size: 0.95rem; font-weight: bold; margin: 20px 0 8px; }
+        .release_item { display: flex; align-items: center; gap: 16px; background-color: #1c1c1c; border: 1px solid #2a2a2a; border-radius: 10px; padding: 12px 16px; margin-bottom: 8px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .release_item:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.6); }
+        .release_item.released { opacity: 0.5; }
+        .release_date { flex-shrink: 0; width: 48px; text-align: center; color: #fff; line-height: 1.2; }
+        .release_date b { display: block; font-size: 1.3rem; }
+        .release_date span { font-size: 0.75rem; color: #888; }
+        .release_info { flex: 1; min-width: 0; }
+        .release_info h3 { color: #fff; font-size: 0.95rem; font-weight: bold; margin-bottom: 4px; }
+        .platform_tag { display: inline-block; background-color: #2a2a2a; color: #aaa; font-size: 0.72rem; border-radius: 4px; padding: 1px 6px; margin: 2px 4px 0 0; }
+        .dday { flex-shrink: 0; color: #e67e22; font-size: 0.85rem; font-weight: bold; }
+        .release_empty { color: #666; font-size: 0.9rem; padding: 24px 0; text-align: center; }
+
+        /* 게임 뉴스 사이트 */
+        .news_card { display: block; background-color: #1c1c1c; border: 1px solid #2a2a2a; border-left: 4px solid #e67e22; border-radius: 10px; padding: 16px 18px; height: 100%; text-decoration: none; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .news_card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.6); }
+        .news_card h3 { color: #fff; font-size: 1rem; font-weight: bold; margin-bottom: 4px; }
+        .news_url { color: #e67e22; font-size: 0.78rem; margin-bottom: 8px; display: block; }
+        .news_card p { color: #aaa; font-size: 0.85rem; line-height: 1.6; margin-bottom: 0; }
+
+        @media screen and (max-width: 800px) {
+            .game_section { margin-left: 88px; }
+        }
+        @media screen and (max-width: 400px) {
+            .game_section { margin-left: 16px; margin-right: 16px; }
+            .release_item { gap: 10px; padding: 10px 12px; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="header_wrap">
+            <h1 class="header_start">
+                <button class="header_hambuger" onclick="toggleNav()" aria-label="메뉴 열기">&#9776;</button>
+                <span class="header_title" onclick="location.href='exam01.html'" data-swap="조성민">ChoSungmin</span>
+            </h1>
+            <div class="header_center">
+                <form class="header_form" onsubmit="return false">
+                    <input class="header_text_input" data-swap-placeholder="Type a keyword to search" placeholder="검색하고 싶은 단어 입력">
+                    <button class="header_input_button" type="submit" data-swap="Search">검색</button>
+                </form>
+            </div>
+            <div class="header_end">
+                <button class="header_search" aria-label="검색">&#128269;</button>
+                <div class="header_profile"></div>
+            </div>
+        </div>
+    </header>
+
+    <nav id="sideNav">
+        <ul class="nav_wrapper">
+            <li>
+                <button class="nav_icon">🏠</button>
+                <button class="nav_menu" onclick="location.href='exam01.html'" data-swap="Home">홈</button>
+            </li>
+            <li>
+                <button class="nav_icon">💼</button>
+                <button class="nav_menu" onclick="location.href='exam01.html#projects'" data-swap="Projects">프로젝트</button>
+            </li>
+            <li>
+                <button class="nav_icon">🏅</button>
+                <button class="nav_menu" onclick="location.href='exam01.html#certs'" data-swap="Certificates">자격증</button>
+            </li>
+            <li>
+                <button class="nav_icon">📋</button>
+                <button class="nav_menu" onclick="location.href='board.html'" data-swap="Board">게시판</button>
+            </li>
+            <li>
+                <button class="nav_icon">💡</button>
+                <button class="nav_menu" onclick="location.href='idea.html'" data-swap="Ideas">아이디어</button>
+            </li>
+            <li>
+                <button class="nav_icon">🎮</button>
+                <button class="nav_menu active" onclick="location.href='games.html'" data-swap="Games">게임 소식</button>
+            </li>
+            <li>
+                <button class="nav_icon">👤</button>
+                <button class="nav_menu" onclick="location.href='profile.html'" data-swap="About Me">자기소개</button>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="game_section">
+        <h1 data-swap="🎮 Game News & Releases">🎮 게임 소식</h1>
+        <p class="game_sub">다가오는 게임 발매 일정과 자주 보는 게임 뉴스 사이트를 모아 두었어요.</p>
+
+        <!-- 발매 일정 -->
+        <h2 class="game_title" data-swap="📅 Release Schedule">📅 발매 일정</h2>
+        <p class="game_sub">발매일은 각 매체 발표 기준이며 바뀔 수 있어요. 지난 게임은 흐리게 보여요.</p>
+        <div class="filter_bar" id="filterBar"></div>
+        <div id="releaseList"></div>
+
+        <!-- 게임 뉴스 사이트 -->
+        <h2 class="game_title" data-swap="📰 Game News Sites">📰 게임 뉴스 사이트</h2>
+        <p class="game_sub">클릭하면 새 탭에서 열려요.</p>
+        <div class="row g-3" id="newsGrid"></div>
+    </div>
+
+    <script>
+        function toggleNav() {
+            document.getElementById('sideNav').classList.toggle('nav_hidden');
+        }
+
+        // 발매 일정 (날짜 순서는 상관없음, 아래에서 정렬)
+        const RELEASES = [
+            { title: '젤다의 전설 시간의 오카리나 (리메이크)', date: '2026-11-05', platforms: ['Switch 2'] },
+            { title: '메타포: 리판타지오', date: '2026-11-12', platforms: ['Switch 2'] },
+            { title: '피크민 4 Nintendo Switch 2 Edition', date: '2026-11-12', platforms: ['Switch 2'] },
+            { title: 'GTA 6 (Grand Theft Auto VI)', date: '2026-11-19', platforms: ['PS5', 'Xbox'] },
+            { title: 'Hela: Of Mice and Magic', date: '2026-12-01', platforms: ['PC', 'PS5', 'Xbox', 'Switch 2'] },
+            { title: '드래곤 퀘스트 몬스터즈: The Withered World', date: '2026-12-03', platforms: ['Switch 2'] },
+            { title: 'Warhammer 40,000: Dawn of War IV', date: '2026-12-03', platforms: ['PC'] },
+            { title: '몬스터 헌터 와일즈', date: '2026-12-04', platforms: ['Switch 2'] },
+            { title: '레이튼 교수와 증기의 신세계', date: '2026-12-10', platforms: ['Switch 2'] }
+        ];
+
+        const NEWS_SITES = [
+            { name: '인벤', url: 'https://www.inven.co.kr', desc: '국내 최대 게임 커뮤니티. 게임별 뉴스, 공략, 패치 소식을 빠르게 볼 수 있어요.' },
+            { name: '루리웹', url: 'https://bbs.ruliweb.com/news', desc: '콘솔·PC 게임 뉴스와 신작 정보가 많고, 유저 반응도 함께 볼 수 있어요.' },
+            { name: '게임메카', url: 'https://www.gamemeca.com', desc: '신작 소개, 리뷰, 인기 순위를 정리해 주는 게임 전문 매체예요.' },
+            { name: '디스이즈게임', url: 'https://www.thisisgame.com', desc: '게임 업계 소식과 기획 기사, 인터뷰를 깊이 있게 다뤄요.' },
+            { name: 'IGN', url: 'https://www.ign.com', desc: '해외 게임 뉴스, 리뷰, 트레일러를 가장 빠르게 볼 수 있는 곳이에요.' },
+            { name: 'Steam 출시 예정 게임', url: 'https://store.steampowered.com/explore/upcoming/', desc: 'PC 게임 출시 예정작과 찜 목록 순위를 직접 확인할 수 있어요.' }
+        ];
+
+        const PLATFORMS = ['전체', 'PC', 'PS5', 'Xbox', 'Switch 2'];
+        let currentPlatform = '전체';
+
+        function daysUntil(dateStr) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            return Math.round((new Date(dateStr + 'T00:00:00') - today) / 86400000);
+        }
+
+        function renderFilters() {
+            const bar = document.getElementById('filterBar');
+            bar.innerHTML = '';
+            PLATFORMS.forEach(p => {
+                const btn = document.createElement('button');
+                btn.className = 'filter_btn' + (p === currentPlatform ? ' active' : '');
+                btn.textContent = p;
+                btn.onclick = () => { currentPlatform = p; renderFilters(); renderReleases(); };
+                bar.appendChild(btn);
+            });
+        }
+
+        function renderReleases() {
+            const list = document.getElementById('releaseList');
+            list.innerHTML = '';
+
+            const games = RELEASES
+                .filter(g => currentPlatform === '전체' || g.platforms.includes(currentPlatform))
+                .sort((a, b) => a.date.localeCompare(b.date));
+
+            if (games.length === 0) {
+                list.innerHTML = '<p class="release_empty">이 기종으로 나오는 게임이 아직 없어요.</p>';
+                return;
+            }
+
+            let lastMonth = '';
+            games.forEach(g => {
+                const [year, month, day] = g.date.split('-');
+                if (year + month !== lastMonth) {
+                    lastMonth = year + month;
+                    const label = document.createElement('div');
+                    label.className = 'month_label';
+                    label.textContent = `${year}년 ${Number(month)}월`;
+                    list.appendChild(label);
+                }
+
+                const left = daysUntil(g.date);
+                const item = document.createElement('div');
+                item.className = 'release_item' + (left < 0 ? ' released' : '');
+                item.innerHTML = `
+                    <div class="release_date"><b>${Number(day)}</b><span>${Number(month)}월</span></div>
+                    <div class="release_info"><h3></h3><div class="tags"></div></div>
+                    <div class="dday">${left > 0 ? 'D-' + left : left === 0 ? '오늘 발매' : '발매됨'}</div>`;
+                item.querySelector('h3').textContent = g.title;
+                g.platforms.forEach(p => {
+                    const tag = document.createElement('span');
+                    tag.className = 'platform_tag';
+                    tag.textContent = p;
+                    item.querySelector('.tags').appendChild(tag);
+                });
+                list.appendChild(item);
+            });
+        }
+
+        function renderNews() {
+            const grid = document.getElementById('newsGrid');
+            NEWS_SITES.forEach(site => {
+                const col = document.createElement('div');
+                col.className = 'col-lg-4 col-md-6 col-12';
+                col.innerHTML = `
+                    <a class="news_card" target="_blank" rel="noopener noreferrer">
+                        <h3></h3><span class="news_url"></span><p></p>
+                    </a>`;
+                const a = col.querySelector('a');
+                a.href = site.url;
+                a.querySelector('h3').textContent = site.name;
+                a.querySelector('.news_url').textContent = new URL(site.url).hostname.replace('www.', '');
+                a.querySelector('p').textContent = site.desc;
+                grid.appendChild(col);
+            });
+        }
+
+        renderFilters();
+        renderReleases();
+        renderNews();
+    </script>
+
+    <script src="js/dropdown.js"></script>
+    <script src="js/hover.js"></script>
+</body>
+</html>
